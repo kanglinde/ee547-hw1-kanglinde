@@ -10,7 +10,7 @@ TIMEOUT = 10
 def GetTimeStamp():
 	return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
-def fetch_url(url):
+def FetchUrl(url):
 	res = {
 		"url": url,
 		"status_code": None,
@@ -73,7 +73,7 @@ def main():
 
 	total_response_time_ms = 0
 	for url in urls:
-		res = fetch_url(url)
+		res = FetchUrl(url)
 		responses.append(res)
 		summary["total_urls"] += 1
 		if res["error"] == None:
