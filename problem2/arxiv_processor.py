@@ -275,10 +275,10 @@ def main():
                   words_freq[w_lower]["documents"].add(paper["arxiv_id"])
                else:
                   words_freq[w_lower] = {
-                  "word": w,
-                  "frequency": 1,
-                  "documents": {paper["arxiv_id"]}
-               }
+                     "word": w,
+                     "frequency": 1,
+                     "documents": {paper["arxiv_id"]}
+                  }
 
       for cat in paper["categories"]:
          if cat in analysis["category_distribution"]:
