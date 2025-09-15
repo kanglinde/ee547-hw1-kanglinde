@@ -97,21 +97,23 @@ def FindAllElem(root, elem):
    return root.findall(f'{{{ATOM}}}{elem}')
 
 def ProduceAbstractStat(abstract):
-   words = abstract.lower().split() #lowercase to count case-insensitive
+   total_sentences = 0
    tot_word_length = 0
-   for w in words:
-      tot_word_length += len(w)
-
-   sentences = re.split(r'[.!?]+', abstract)
-   tot_words_per_sentence = 0
-   for s in sentences:
-      tot_words_per_sentence += len(s.split())
-
+   sentences = re.split(r'[.!?]+', abstract.lower()) #lowercase to count case-insensitive
+   words = []
+   for sent in sentences:
+      sent = sent.strip()
+      if len(sent) > 0:
+         total_sentences += 1
+         for w in re.split(r'[,;\n ]+', sent):
+            if len(w) > 0:
+               words.append(w)
+               tot_word_length += len(w)
    return {
       "total_words": len(words),
       "unique_words": len(set(words)),
-      "total_sentences": len(sentences),
-      "avg_words_per_sentence": tot_words_per_sentence/len(sentences),
+      "total_sentences": total_sentences,
+      "avg_words_per_sentence": len(words) / total_sentences,
       "avg_word_length": tot_word_length/len(words)
    }
 
@@ -251,34 +253,33 @@ def main():
       abstract_lengths.append(paper["abstract_stats"]["total_words"])
 
       #Analyze abstract
-      for word in paper["abstract"].split():
-         word_lower = word.lower()
-
-         #Check uppercase
-         if word == word.upper() and any(ch.isalpha() for ch in word) and word_lower not in STOPWORDS:
-            technical_terms["uppercase_terms"].add(word)
-         #Check numeric
-         if any(ch.isdigit() for ch in word):
-            technical_terms["numeric_terms"].add(word)
-         #Check hyphen
-         if any(ch == '-' for ch in word):
-            technical_terms["hyphenated_terms"].add(word)
-
-         #Update unique words
-         unique_words.add(word_lower)
-
-         #Update words frequency
-         if word_lower not in STOPWORDS:
-            if word_lower in words_freq:
-               words_freq[word_lower]["frequency"] += 1
-               words_freq[word_lower]["documents"].add(paper["arxiv_id"])
-            else:
-               words_freq[word_lower] = {
-                  "word": word,
+      words = re.split(r'[,;.!?\n ]+', paper["abstract"])
+      for w in words:
+         if len(w) > 0:
+            #Check uppercase
+            if w == w.upper() and any(ch.isalpha() for ch in w) and w.lower() not in STOPWORDS:
+               technical_terms["uppercase_terms"].add(w)
+            #Check numeric
+            if any(ch.isdigit() for ch in w):
+               technical_terms["numeric_terms"].add(w)
+            #Check hyphen
+            if any(ch == '-' for ch in w):
+               technical_terms["hyphenated_terms"].add(w)
+            #Update unique words
+            unique_words.add(w.lower())
+            #Update words freq
+            w_lower = w.lower()
+            if w_lower not in STOPWORDS:
+               if w_lower in words_freq:
+                  words_freq[w_lower]["frequency"] += 1
+                  words_freq[w_lower]["documents"].add(paper["arxiv_id"])
+               else:
+                  words_freq[w_lower] = {
+                  "word": w,
                   "frequency": 1,
                   "documents": {paper["arxiv_id"]}
                }
-      
+
       for cat in paper["categories"]:
          if cat in analysis["category_distribution"]:
             analysis["category_distribution"][cat] += 1
