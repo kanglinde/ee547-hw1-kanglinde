@@ -38,6 +38,7 @@ sleep 3
 
 # Inject URLs
 echo "Injecting URLs..."
+docker exec pipeline-fetcher mkdir -p /shared/input  # just incase /shared/input is missing
 docker cp "$TEMP_DIR/urls.txt" pipeline-fetcher:/shared/input/urls.txt
 
 # Monitor completion

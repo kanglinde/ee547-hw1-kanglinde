@@ -10,6 +10,7 @@ def main():
     print(f"[{datetime.now(timezone.utc).isoformat()}] Fetcher starting", flush=True)
     
     # Wait for input file
+    os.makedirs("/shared/input", exist_ok=True)  # in case /shared/input is missing
     input_file = "/shared/input/urls.txt"
     while not os.path.exists(input_file):
         print(f"Waiting for {input_file}...", flush=True)
